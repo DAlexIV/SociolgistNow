@@ -4,8 +4,16 @@ import android.app.Application;
 
 import com.vk.sdk.VKSdk;
 
-
+/**
+<<<<<<< HEAD
+ * Created by dalexiv on 02.11.15.
+ */
+public class MyApplication extends Application{
+=======
+ * Created by dalex on 10/11/2015.
+ */
 public class MyApplication extends Application {
+>>>>>>> 7eee14c9d5bc04dc99d8d79084111e4cdad64ecb
     @Override
     public void onCreate() {
         super.onCreate();
