@@ -1,4 +1,4 @@
-package com.hse.dalexiv.vksignintest;
+package com.hse.dalexiv.vksignintest.app;
 
 import android.app.Application;
 
