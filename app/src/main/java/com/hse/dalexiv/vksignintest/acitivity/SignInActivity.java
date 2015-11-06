@@ -1,11 +1,13 @@
-package com.hse.dalexiv.vksignintest;
+package com.hse.dalexiv.vksignintest.acitivity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.hse.dalexiv.vksignintest.R;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
