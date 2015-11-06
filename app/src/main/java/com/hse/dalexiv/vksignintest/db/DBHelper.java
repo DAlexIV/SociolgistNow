@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.hse.dalexiv.vksignintest.model.Post;
 
 import java.util.ArrayList;
+import java.util.NavigableMap;
 
 /**
  * Created by dalex on 11/4/2015.
@@ -84,6 +85,23 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return posts;
     }
+    public Post getClosestTime(Post initial_post)
+    {
+        SQLiteDatabase db = getReadableDatabase();
+        Post currentPost = null;
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_POSTS, null);
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+            currentPost = cursorToPost(cursor);
+            if (currentPost.compareTo(initial_post) > 0)
+                break;
+            cursor.moveToNext();
+        }
+        cursor.close();
+        db.close();
+        return currentPost;
+    }
 
     private Post cursorToPost(Cursor cursor) {
         Post post = new Post(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
@@ -91,6 +109,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 cursor.getInt(5), cursor.getString(6));
         return post;
     }
+
 
 
 }

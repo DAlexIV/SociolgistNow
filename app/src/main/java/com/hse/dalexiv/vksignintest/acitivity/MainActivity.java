@@ -15,6 +15,8 @@ import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.hse.dalexiv.vksignintest.model.Post;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -49,10 +51,19 @@ public class MainActivity extends AppCompatActivity {
             Arrays.sort(mPosts);
             if (mPosts != null)
             {
-                db = new DBHelper(this, null, null, 4);
+                db = new DBHelper(this, null, null, 5);
                 for (Post post : mPosts)
                     db.insert(post);
+
+                DateTime curTime = new DateTime();
+                DateTime timeToFind = new DateTime(2015, 1, 1,
+                        curTime.getHourOfDay(), curTime.getMinuteOfHour());
+
+                Post target = db.getClosestTime(new Post(timeToFind));
+
+                myText.setText(myText.getText() + target.toString());
                 ArrayList<Post> fromDB = db.getEverything();
+
                 for (Post post : fromDB)
                     myText.setText(myText.getText() + post.toString());
 

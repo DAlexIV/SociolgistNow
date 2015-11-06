@@ -10,17 +10,18 @@ import org.joda.time.DateTime;
 public class Post implements Comparable<Post>{
     private String TAG = Post.class.getName();
     private int _id;
+
     private transient DateTime time;
 
     private String url;
+
     private String text;
-
     private int hours;
+
     private int mins;
-
     private String timeText;
-    private String uriToImage;
 
+    private String uriToImage;
     public Post(String time, String url, String text) {
         this.url = url;
         this.text = text;
@@ -32,7 +33,7 @@ public class Post implements Comparable<Post>{
         this.time = new DateTime(2015, 1, 1, hours, mins);
     }
 
-    public Post(int _id, String text, String timeText, String url,
+    public Post(int _id, String text, String url, String timeText,
                 int hours, int mins, String uriToImage) {
         this._id = _id;
         this.mins = mins;
@@ -41,6 +42,10 @@ public class Post implements Comparable<Post>{
         this.timeText = timeText;
         this.uriToImage = uriToImage;
         this.url = url;
+    }
+
+    public Post(DateTime time) {
+        this.time = time;
     }
 
     @Override
