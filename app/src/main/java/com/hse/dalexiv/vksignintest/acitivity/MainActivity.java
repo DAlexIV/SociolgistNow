@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -27,11 +29,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Going to fullscreen
+
+        // Do other stuff
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
         myText = (TextView) findViewById(R.id.myText);
         coordinatorView = findViewById(R.id.mysnack);
+
 
         String response = getIntent().getExtras().getString("result");
         if (response.equals("OK")) {

@@ -21,7 +21,8 @@
         </activity>
         <activity
             android:name=".acitivity.MainActivity"
-            android:label="@string/title_activity_main"></activity>
+            android:label="@string/title_activity_main"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"></activity>
     </application>
 
 </manifest>
