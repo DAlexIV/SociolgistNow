@@ -1,5 +1,6 @@
 package com.hse.dalexiv.vksignintest.downloader;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -31,27 +32,27 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> 
         mContext = new WeakReference<Activity>(activity);
     }
 
+    private static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1
+            );
+        }
+    }
+
     @Override
     protected Uri doInBackground(String[]... params) {
         int count;
         try {
 
-            if (ContextCompat.checkSelfPermission(mContext.get(),
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(mContext.get(),
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(mContext.get(),
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        || ActivityCompat.shouldShowRequestPermissionRationale(mContext.get(),
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE))
-                    ; // We are not suppose to request something
-                else
-                    ActivityCompat.requestPermissions(mContext.get(),
-                            new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_REQUEST_CODE);
-            }
+            verifyStoragePermissions(mContext.get());
 
             String urlText = params[0][0];
             String filename = params[0][1];
@@ -65,10 +66,10 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> 
             // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-            File myOnlyFile = new File(Environment.getDownloadCacheDirectory(), "temp.jpg");
+            File myOnlyFile = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
 
             // Output stream to write file
-            OutputStream output = new FileOutputStream(Environment.getDownloadCacheDirectory() + "/"
+            OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory() + "/"
                     + filename);
 
             byte data[] = new byte[1024];
