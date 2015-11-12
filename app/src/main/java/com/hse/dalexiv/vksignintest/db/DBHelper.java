@@ -3,6 +3,7 @@ package com.hse.dalexiv.vksignintest.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -10,6 +11,7 @@ import com.hse.dalexiv.vksignintest.model.Post;
 
 import java.util.ArrayList;
 import java.util.NavigableMap;
+import java.util.Random;
 
 /**
  * Created by dalex on 11/4/2015.
@@ -85,6 +87,24 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return posts;
     }
+
+    public boolean checkIfEmpty()
+    {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_POSTS, null);
+        cursor.moveToFirst();
+        int check = -1;
+            try {
+             check = cursor.getInt(0);
+        }
+        catch (CursorIndexOutOfBoundsException e)
+        {
+            return true;
+        }
+        cursor.close();
+        db.close();
+        return check == 0;
+    }
     public Post getClosestTime(Post initial_post)
     {
         SQLiteDatabase db = getReadableDatabase();
@@ -101,6 +121,18 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return currentPost;
+    }
+
+    public Post getRandomPost()
+    {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_POSTS, null);
+        cursor.moveToFirst();
+        int numberOfPosts = cursor.getCount();
+        int myRandomPost = (new Random()).nextInt(numberOfPosts);
+        for (int i = 0; i < myRandomPost; ++i)
+            cursor.moveToNext();
+        return cursorToPost(cursor);
     }
 
     private Post cursorToPost(Cursor cursor) {

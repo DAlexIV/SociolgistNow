@@ -1,4 +1,4 @@
-package com.hse.dalexiv.vksignintest.Downloader;
+package com.hse.dalexiv.vksignintest.downloader;
 
 import android.os.Bundle;
 import android.util.Log;
