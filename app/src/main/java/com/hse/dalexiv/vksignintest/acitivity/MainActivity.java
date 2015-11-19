@@ -1,5 +1,6 @@
 package com.hse.dalexiv.vksignintest.acitivity;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +23,7 @@ import com.hse.dalexiv.vksignintest.R;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.hse.dalexiv.vksignintest.downloader.ImageDownloader;
+import com.hse.dalexiv.vksignintest.downloader.LoadImage;
 import com.hse.dalexiv.vksignintest.downloader.VKDownloadManager;
 import com.hse.dalexiv.vksignintest.model.Post;
 
@@ -32,13 +34,12 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String IMAGE_NAME = "socio.jpg";
     private final int MY_REQUEST_CODE = 777;
     private TextView mText;
-    private View mCoordinatorView;
     private ProgressBar mProgressBar;
-    private ImageView mImageView;
     private DBHelper db;
-    private WeakReference<Bitmap> testBitmap;
+    private Post target;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +50,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
 
         mText = (TextView) findViewById(R.id.mText);
-        mCoordinatorView = findViewById(R.id.mysnack);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mImageView = (ImageView) findViewById(R.id.imageView);
 
         String response = getIntent().getExtras().getString("result");
         if (response.equals("OK")) {
@@ -64,25 +63,56 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadStuff() {
-        ImageDownloader imageDownloader = new ImageDownloader(this) {
+        final ImageDownloader imageDownloader = new ImageDownloader(this) {
             @Override
             protected void onProgressUpdate(Integer... values) {
                 mProgressBar.setProgress(values[0]);
             }
 
             @Override
-            protected void onPostExecute(Uri uri) {
+            protected void onPostExecute(String path) {
                 mText.setText("Done!");
+                target.setUriToImage(path);
+                // Start new activity with path intent
+                Intent toPostActivity = new Intent(MainActivity.this, PostActivity.class);
 
+                Gson gson = new Gson();
+                String serializedPost = gson.toJson(target);
+                toPostActivity.putExtra("post", serializedPost);
+
+                startActivity(toPostActivity);
+                finish();
             }
         };
 
+        db = new DBHelper(this, null, null, 11);
         VKDownloadManager downloader = new VKDownloadManager(new IShow() {
             @Override
             public void show(String text, boolean isLong) {
                 showException(text, isLong);
             }
-        });
+        }) {
+            @Override
+            public void processResults(Post[] posts) {
+
+                if (db.checkIfEmpty()) {
+                    mText.setText("Downloading links");
+                    Arrays.sort(posts);
+                    for (Post post : posts)
+                        db.insert(post);
+                }
+
+                DateTime curTime = new DateTime();
+                DateTime timeToFind = new DateTime(2015, 1, 1,
+                        curTime.getHourOfDay(), curTime.getMinuteOfHour());
+
+                target = db.getClosestTime(new Post(timeToFind));
+                //mText.setText(mText.getText() + target.toString());
+
+                mText.setText("Downloading fresh pic");
+                imageDownloader.execute(new String[]{target.getPreviewPicURL(), IMAGE_NAME});
+            }
+        };
 
         mText.setText("Checking permissions");
         mProgressBar.setProgress(10);
@@ -90,45 +120,14 @@ public class MainActivity extends AppCompatActivity {
 
         mText.setText("Initializing database");
         mProgressBar.setProgress(30);
-        db = new DBHelper(this, null, null, 7);
-        if (db.checkIfEmpty()) {
-            mText.setText("Downloading links");
-            Bundle res = downloader.downloadAllTimesAndLinks();
-            Gson gson = new Gson();
-            Post[] mPosts = gson.fromJson(res.getString("data"), Post[].class);
-            Arrays.sort(mPosts);
-            for (Post post : mPosts)
-                db.insert(post);
-        }
 
-        DateTime curTime = new DateTime();
-        DateTime timeToFind = new DateTime(2015, 1, 1,
-                curTime.getHourOfDay(), curTime.getMinuteOfHour());
-
-        Post random = db.getRandomPost();
-        //mText.setText(mText.getText() +"\n" + "RANDOM!!!" + "\n" + random.toString());
-
-
-        Post target = db.getClosestTime(new Post(timeToFind));
-        //mText.setText(mText.getText() + target.toString());
-
-        db.getEverything();
-        mText.setText("All done");
-        mProgressBar.setProgress(90);
-
-        imageDownloader.execute(new String[]{random.getUrl(), "test.jpg"});
             /*
             for (Post post : fromDB)
                 mText.setText(mText.getText() + post.toString());
     `       */
     }
 
-    private Bitmap getBitmapFromFile(String name) {
-        File sd = Environment.getExternalStorageDirectory();
-        File image = new File(sd + "/", name);
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        return BitmapFactory.decodeFile(image.getAbsolutePath(), bmOptions);
-    }
+
 
     private void requestPerms() {
         if (ContextCompat.checkSelfPermission(this,
@@ -174,10 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showException(String exceptionText, boolean isLong) {
-        if (isLong)
-            Snackbar.make(mCoordinatorView, exceptionText, Snackbar.LENGTH_LONG).show();
-        else
-            Snackbar.make(mCoordinatorView, exceptionText, Snackbar.LENGTH_SHORT).show();
+        mText.setText(exceptionText);
 
     }
 
@@ -188,8 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    testBitmap = new WeakReference<Bitmap>(getBitmapFromFile("test.jpg"));
-                    mImageView.setImageBitmap(testBitmap.get());
+                    mText.setText("Thanks");
                 }
                 else
                 {

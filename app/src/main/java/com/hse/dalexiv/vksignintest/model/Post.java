@@ -13,7 +13,9 @@ public class Post implements Comparable<Post>{
 
     private transient DateTime time;
 
-    private String url;
+    private String previewPicURL;
+    private String fullPicURL;
+    private String postURL;
 
     private String text;
     private int hours;
@@ -22,8 +24,11 @@ public class Post implements Comparable<Post>{
     private String timeText;
 
     private String uriToImage;
-    public Post(String time, String url, String text) {
-        this.url = url;
+
+    public Post(String time, String postURL, String previewPicURL, String fullPicURL, String text) {
+        this.previewPicURL = previewPicURL;
+        this.fullPicURL = fullPicURL;
+        this.postURL = postURL;
         this.text = text;
 
         this.hours = Integer.parseInt(time.split(":")[0]);
@@ -33,15 +38,18 @@ public class Post implements Comparable<Post>{
         this.time = new DateTime(2015, 1, 1, hours, mins);
     }
 
-    public Post(int _id, String text, String url, String timeText,
-                int hours, int mins, String uriToImage) {
+    public Post(int _id, String text, String postURL, String previewPicURL, String fullPicURL,
+                String timeText, int hours, int mins, String uriToImage) {
         this._id = _id;
         this.mins = mins;
         this.hours = hours;
         this.text = text;
         this.timeText = timeText;
+        this.postURL = postURL;
+        this.previewPicURL = previewPicURL;
+        this.fullPicURL = fullPicURL;
         this.uriToImage = uriToImage;
-        this.url = url;
+        this.previewPicURL = previewPicURL;
     }
 
     public Post(DateTime time) {
@@ -50,7 +58,7 @@ public class Post implements Comparable<Post>{
 
     @Override
     public String toString() {
-        return this.getTime()+ "\n" + text + "\n" + url + "\n";
+        return this.getTime()+ "\n" + text + "\n" + previewPicURL + "\n";
     }
 
     public int getHours() {
@@ -79,9 +87,22 @@ public class Post implements Comparable<Post>{
         return uriToImage;
     }
 
-    public String getUrl() {
-        return url;
+    public void setUriToImage(String uriToImage) {
+        this.uriToImage = uriToImage;
     }
+
+    public String getPostURL() {
+        return postURL;
+    }
+
+    public String getFullPicURL() {
+        return fullPicURL;
+    }
+
+    public String getPreviewPicURL() {
+        return previewPicURL;
+    }
+
 
     @Override
     public int compareTo(Post another) {

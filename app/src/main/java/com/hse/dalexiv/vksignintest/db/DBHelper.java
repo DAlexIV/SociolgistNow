@@ -24,7 +24,9 @@ public class DBHelper extends SQLiteOpenHelper {
     // One db row
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_POST_TEXT = "txt";
-    public static final String COLUMN_POST_URL = "url";
+    public static final String COLUMN_POST_URL = "post_url";
+    public static final String COLUMN_POST_PREVIEW_PIC = "preview_url";
+    public static final String COLUMN_POST_FULL_PIC = "full_url";
     public static final String COLUMN_POST_TIME_TEXT = "time_text";
     public static final String COLUMN_POST_TIME_H = "time_h";
     public static final String COLUMN_POST_TIME_M = "time_m";
@@ -40,6 +42,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_POST_TEXT + " TEXT, " +
                 COLUMN_POST_URL + " TEXT, " +
+                COLUMN_POST_PREVIEW_PIC + " TEXT, " +
+                COLUMN_POST_FULL_PIC + " TEXT, " +
                 COLUMN_POST_TIME_TEXT + " TEXT, " +
                 COLUMN_POST_TIME_H + " INTEGER, " +
                 COLUMN_POST_TIME_M + " INTEGER, " +
@@ -57,12 +61,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public void insert(Post myPost) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+
         contentValues.put(COLUMN_POST_TEXT, myPost.getText());
-        contentValues.put(COLUMN_POST_URL, myPost.getUrl());
+        contentValues.put(COLUMN_POST_URL, myPost.getPostURL());
+        contentValues.put(COLUMN_POST_PREVIEW_PIC, myPost.getPreviewPicURL());
+        contentValues.put(COLUMN_POST_FULL_PIC, myPost.getFullPicURL());
         contentValues.put(COLUMN_POST_TIME_TEXT, myPost.getTimeText());
         contentValues.put(COLUMN_POST_TIME_H, myPost.getHours());
         contentValues.put(COLUMN_POST_TIME_M, myPost.getMins());
         contentValues.put(COLUMN_POST_PIC_URI, myPost.getUriToImage());
+
         db.insert(TABLE_POSTS, null, contentValues);
         db.close();
     }
@@ -137,8 +145,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private Post cursorToPost(Cursor cursor) {
         Post post = new Post(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                cursor.getString(3), cursor.getInt(4),
-                cursor.getInt(5), cursor.getString(6));
+                cursor.getString(3), cursor.getString(4),
+                cursor.getString(5), cursor.getInt(6),
+                cursor.getInt(7), cursor.getString(8));
         return post;
     }
 

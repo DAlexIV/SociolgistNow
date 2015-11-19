@@ -11,6 +11,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.hse.dalexiv.vksignintest.acitivity.MainActivity;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,7 +25,7 @@ import java.net.URLConnection;
 /**
  * Created by dalex on 11/12/2015.
  */
-public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> {
+public abstract class ImageDownloader extends AsyncTask<String[], Integer, String> {
     private final String TAG = this.getClass().getSimpleName();
     private WeakReference<Activity> mContext;
     private final int MY_REQUEST_CODE = 777;
@@ -48,7 +50,7 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> 
     }
 
     @Override
-    protected Uri doInBackground(String[]... params) {
+    protected String doInBackground(String[]... params) {
         int count;
         try {
 
@@ -66,7 +68,7 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> 
             // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-            File myOnlyFile = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
+            File myOnlyFile = new File(Environment.getExternalStorageDirectory(), MainActivity.IMAGE_NAME);
 
             // Output stream to write file
             OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory() + "/"
@@ -93,7 +95,7 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> 
             output.close();
             input.close();
 
-            return Uri.parse(filename);
+            return filename;
         } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
             return null;
@@ -105,5 +107,5 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Uri> 
     protected abstract void onProgressUpdate(Integer... values);
 
     @Override
-    protected abstract void onPostExecute(Uri uri);
+    protected abstract void onPostExecute(String uri);
 }

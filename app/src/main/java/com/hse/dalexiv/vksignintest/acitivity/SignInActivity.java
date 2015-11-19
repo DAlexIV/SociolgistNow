@@ -3,7 +3,6 @@ package com.hse.dalexiv.vksignintest.acitivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,11 +20,13 @@ public class SignInActivity extends Activity {
             @Override
             public void onResult(VKAccessToken vkAccessToken) {
                 startActivity(new Intent(SignInActivity.this, MainActivity.class).putExtra("result", "OK"));
+                finish();
             }
 
             @Override
             public void onError(VKError vkError) {
                 startActivity(new Intent(SignInActivity.this, MainActivity.class).putExtra("result", "NOPE"));
+                finish();
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);

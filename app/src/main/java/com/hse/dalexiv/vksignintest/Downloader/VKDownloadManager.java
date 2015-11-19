@@ -1,9 +1,7 @@
 package com.hse.dalexiv.vksignintest.downloader;
 
-import android.os.Bundle;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.model.Post;
 import com.hse.dalexiv.vksignintest.model.PostProcessor;
@@ -24,18 +22,21 @@ import java.util.List;
 /**
  * Created by dalex on 11/3/2015.
  */
-public class VKDownloadManager implements IShow {
+public abstract class VKDownloadManager implements IShow {
     private final String TEST_ID = "50323156";
-    String TAG = VKDownloadManager.class.toString();
-    IShow callback;
+    private final String GROUP_REF = "http://vk.com/dreaming_sociologist?w=wall-92209938_";
+    private final String GROUP_ID = "-92209938";
 
-    public VKDownloadManager(IShow callback) {
-        this.callback = callback;
+    String TAG = VKDownloadManager.class.toString();
+    IShow exceptionCallback;
+
+    public VKDownloadManager(IShow exceptionCallback) {
+        this.exceptionCallback = exceptionCallback;
     }
 
     @Override
     public void show(String text, boolean isLong) {
-        callback.show(text, isLong);
+        exceptionCallback.show(text, isLong);
     }
 
 
@@ -68,8 +69,11 @@ public class VKDownloadManager implements IShow {
                     JSONArray attach = (JSONArray) post.get("attachments");
                     try {
                         JSONObject photos = (JSONObject) ((JSONObject) attach.get(0)).get("photo");
-                        String linkToPic = photos.get("photo_604").toString();
-                        mPostInfo.add(new Post(time, linkToPic, postText));
+                        String linkToPreviewPic = photos.get("photo_604").toString();
+                        String linkToPost = GROUP_REF + post.get("id");
+                        String linkToMaxSize = getMaxSize(photos);
+                        mPostInfo.add(new Post(time, linkToPost,
+                                linkToPreviewPic, linkToMaxSize, postText));
                     } catch (JSONException e) {
                         if (e.getMessage().equals("No value for photo")) {
                             Log.i(TAG, e.getMessage());
@@ -86,11 +90,11 @@ public class VKDownloadManager implements IShow {
         return mPostInfo.toArray(new Post[mPostInfo.size()]);
     }
 
-    public Bundle downloadAllTimesAndLinks() {
+    public void downloadAllTimesAndLinks() {
+
         VKRequest main_req = VKApi.wall()
-                .get(VKParameters.from(VKApiConst.OWNER_ID, "-92209938", VKApiConst.COUNT, "100"));
-        final Bundle returnedBundle = new Bundle();
-        main_req.executeSyncWithListener(new VKRequest.VKRequestListener() {
+                .get(VKParameters.from(VKApiConst.OWNER_ID, GROUP_ID, VKApiConst.COUNT, "100"));
+        main_req.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onError(VKError error) {
                 super.onError(error);
@@ -102,7 +106,8 @@ public class VKDownloadManager implements IShow {
                 super.onComplete(response);
                 try {
                     Post[] testText = parseDate(response);
-                    returnedBundle.putString("data", new Gson().toJson(testText));
+                    processResults(testText);
+
                 } catch (JSONException e) {
                     show(e.getMessage(), true);
                     Log.i(TAG, e.getMessage());
@@ -115,7 +120,6 @@ public class VKDownloadManager implements IShow {
                 }
             }
         });
-        return returnedBundle;
     }
 
     public void checkPermissions() {
@@ -147,5 +151,15 @@ public class VKDownloadManager implements IShow {
                 show(error.errorMessage, true);
             }
         });
+    }
+
+    public abstract void processResults(Post[] posts);
+
+    private String getMaxSize(JSONObject photos) throws JSONException {
+        String[] tags = {"photo_2560", "photo_1280", "photo_807", "photo_604"};
+        for (String tag : tags)
+            if (photos.has(tag))
+                return photos.get(tag).toString();
+        throw new JSONException("No photos found in post");
     }
 }
