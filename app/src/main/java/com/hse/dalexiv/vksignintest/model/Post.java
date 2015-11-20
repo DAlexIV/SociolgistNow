@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 /**
  * Created by dalex on 11/3/2015.
  */
-public class Post implements Comparable<Post>{
+public class Post implements Comparable<Post> {
     private String TAG = Post.class.getName();
     private int _id;
 
@@ -25,31 +25,43 @@ public class Post implements Comparable<Post>{
 
     private String uriToImage;
 
-    public Post(String time, String postURL, String previewPicURL, String fullPicURL, String text) {
+    private int comments;
+    private int likes;
+
+    private Post(String previewPicURL, String fullPicURL, String postURL, String text, String time) {
         this.previewPicURL = previewPicURL;
         this.fullPicURL = fullPicURL;
         this.postURL = postURL;
         this.text = text;
+        this.timeText = time;
+    }
+
+    public Post(String time, String postURL, String previewPicURL, String fullPicURL, String text,
+                int comments, int likes) {
+        this(previewPicURL, fullPicURL, postURL, text, time);
 
         this.hours = Integer.parseInt(time.split(":")[0]);
         this.mins = Integer.parseInt(time.split(":")[1]);
-
-        this.timeText = time;
         this.time = new DateTime(2015, 1, 1, hours, mins);
+
+        this.likes = likes;
+        this.comments = comments;
     }
 
     public Post(int _id, String text, String postURL, String previewPicURL, String fullPicURL,
-                String timeText, int hours, int mins, String uriToImage) {
+                String timeText, int hours, int mins, String uriToImage, int likes, int comments) {
+
+        this(previewPicURL, fullPicURL, postURL, text, timeText);
+
         this._id = _id;
         this.mins = mins;
         this.hours = hours;
-        this.text = text;
-        this.timeText = timeText;
-        this.postURL = postURL;
-        this.previewPicURL = previewPicURL;
-        this.fullPicURL = fullPicURL;
+
+
         this.uriToImage = uriToImage;
         this.previewPicURL = previewPicURL;
+        this.likes = likes;
+        this.comments = comments;
     }
 
     public Post(DateTime time) {
@@ -58,7 +70,7 @@ public class Post implements Comparable<Post>{
 
     @Override
     public String toString() {
-        return this.getTime()+ "\n" + text + "\n" + previewPicURL + "\n";
+        return this.getTime() + "\n" + text + "\n" + previewPicURL + "\n";
     }
 
     public int getHours() {
@@ -81,6 +93,14 @@ public class Post implements Comparable<Post>{
 
     public String getTimeText() {
         return timeText;
+    }
+
+    public int getComments() {
+        return comments;
+    }
+
+    public int getLikes() {
+        return likes;
     }
 
     public String getUriToImage() {

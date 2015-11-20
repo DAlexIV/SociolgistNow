@@ -31,6 +31,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_POST_TIME_H = "time_h";
     public static final String COLUMN_POST_TIME_M = "time_m";
     public static final String COLUMN_POST_PIC_URI = "pic";
+    public static final String COLUMN_POST_LIKES = "likes";
+    public static final String COLUMN_POST_COMMENTS = "comments";
+
 
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, DATABASE_NAME, factory, version);
@@ -47,7 +50,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_POST_TIME_TEXT + " TEXT, " +
                 COLUMN_POST_TIME_H + " INTEGER, " +
                 COLUMN_POST_TIME_M + " INTEGER, " +
-                COLUMN_POST_PIC_URI + " TEXT " +
+                COLUMN_POST_PIC_URI + " TEXT, " +
+                COLUMN_POST_LIKES + " INTEGER, " +
+                COLUMN_POST_COMMENTS + " INTEGER " +
                 ");";
         db.execSQL(query);
     }
@@ -70,6 +75,9 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_POST_TIME_H, myPost.getHours());
         contentValues.put(COLUMN_POST_TIME_M, myPost.getMins());
         contentValues.put(COLUMN_POST_PIC_URI, myPost.getUriToImage());
+        contentValues.put(COLUMN_POST_LIKES, myPost.getLikes());
+        contentValues.put(COLUMN_POST_COMMENTS, myPost.getComments());
+
 
         db.insert(TABLE_POSTS, null, contentValues);
         db.close();
@@ -147,7 +155,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Post post = new Post(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
                 cursor.getString(3), cursor.getString(4),
                 cursor.getString(5), cursor.getInt(6),
-                cursor.getInt(7), cursor.getString(8));
+                cursor.getInt(7), cursor.getString(8), cursor.getInt(9), cursor.getInt(10));
         return post;
     }
 
