@@ -5,7 +5,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -25,19 +26,21 @@ import com.hse.dalexiv.vksignintest.model.Post;
 import java.lang.ref.WeakReference;
 
 public class PostActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
-    ProgressBar mProgressBar;
-    ProgressBar mProgressBarUnder;
-    CoordinatorLayout mCoordinatorLayout;
+    private volatile boolean isImageUpdating;
+    private ProgressBar mProgressBar;
+    private ProgressBar mProgressBarUnder;
 
-    ImageView mImageView;
-    TextView mTextView;
-    TextView mLikesTextView;
-    TextView mCommsTextView;
-    SwipeRefreshLayout mSwipeRefresh;
-    DBHelper db;
+    private ImageView mImageView;
+    private TextView mTextView;
+    private TextView mLikesTextView;
+    private TextView mCommsTextView;
+    private SwipeRefreshLayout mSwipeRefresh;
+    private MyFabbyScrollView mFabbyScrollView;
+    private FloatingActionButton mFAB;
 
-    WeakReference<Bitmap> currentPic;
-    Post mPost;
+    private DBHelper db;
+    private WeakReference<Bitmap> currentPic;
+    private Post mPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +53,10 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         mLikesTextView = (TextView) findViewById(R.id.likesText);
         mCommsTextView = (TextView) findViewById(R.id.commsText);
         mProgressBarUnder = (ProgressBar) findViewById(R.id.progBarUnder);
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        mFabbyScrollView = (MyFabbyScrollView) findViewById(R.id.scroll);
+        mFAB = (FloatingActionButton) findViewById(R.id.fab);
+
+        mFabbyScrollView.setFab(mFAB);
 
         mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
         mSwipeRefresh.setOnRefreshListener(this);
@@ -66,6 +72,8 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         db = new DBHelper(this, null, null, 3);
 
         showPost();
+
+        isImageUpdating = false;
     }
 
     public void cardClick(View v) {
@@ -77,46 +85,57 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void imageClick(View v) {
-        ImageDownloader downloadFull = new ImageDownloader(this) {
-            @Override
-            protected void onPostExecute(String uri) {
-                Intent toGallery = new Intent(Intent.ACTION_VIEW);
-                toGallery.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory() + "/" + uri),
-                        "image/*");
-                startActivity(toGallery);
+        if (!isImageUpdating) {
+            isImageUpdating = true;
+            ImageDownloader downloadFull = new ImageDownloader(this) {
+                @Override
+                protected void onPostExecute(String uri) {
+                    Intent toGallery = new Intent(Intent.ACTION_VIEW);
+                    toGallery.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory() + "/" + uri),
+                            "image/*");
+                    startActivity(toGallery);
 
-                mProgressBar.setVisibility(View.GONE);
-            }
+                    mProgressBar.setVisibility(View.GONE);
+                    mProgressBar.setProgress(0);
+                    isImageUpdating = false;
+                }
 
-            @Override
-            protected void onProgressUpdate(Integer... values) {
-                mProgressBar.setProgress(values[0]);
-            }
-        };
-        downloadFull.execute(new String[]{mPost.getFullPicURL(), MainActivity.IMAGE_NAME_FULL});
-        mProgressBar.setVisibility(View.VISIBLE);
+                @Override
+                protected void onProgressUpdate(Integer... values) {
+                    mProgressBar.setProgress(values[0]);
+                }
+            };
+            downloadFull.execute(new String[]{mPost.getFullPicURL(), MainActivity.IMAGE_NAME_FULL});
+            mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setProgress(10);
+        }
     }
 
-    public void fabClick(View v)
-    {
-        mPost = db.getRandomPost();
+    public void fabClick(View v) {
+        if (!isImageUpdating) {
+            isImageUpdating = true;
+            mPost = db.getRandomPost();
 
-        final ImageDownloader imageDownloader = new ImageDownloader(this) {
-            @Override
-            protected void onProgressUpdate(Integer... values) {
-                mProgressBarUnder.setProgress(values[0]);
-            }
+            final ImageDownloader imageDownloader = new ImageDownloader(this) {
+                @Override
+                protected void onProgressUpdate(Integer... values) {
+                    mProgressBarUnder.setProgress(values[0]);
+                }
 
-            @Override
-            protected void onPostExecute(String path) {
-                mPost.setUriToImage(path);
-                showPost();
-                mProgressBarUnder.setVisibility(View.GONE);
-            }
-        };
+                @Override
+                protected void onPostExecute(String path) {
+                    mPost.setUriToImage(path);
+                    showPost();
+                    mProgressBarUnder.setVisibility(View.GONE);
+                    mProgressBarUnder.setProgress(0);
+                    isImageUpdating = false;
+                }
+            };
 
-        imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
-        mProgressBarUnder.setVisibility(View.VISIBLE);
+            imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
+            mProgressBarUnder.setVisibility(View.VISIBLE);
+            mProgressBarUnder.setProgress(10);
+        }
     }
 
     @Override
@@ -154,24 +173,34 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-
-        mPost = db.getClosestTime(Post.createCurrentTimePost());
-
-        final ImageDownloader imageDownloader = new ImageDownloader(this) {
-            @Override
-            protected void onProgressUpdate(Integer... values) {
-            }
-
-            @Override
-            protected void onPostExecute(String path) {
-                mPost.setUriToImage(path);
-                showPost();
+        if (!isImageUpdating) {
+            isImageUpdating = true;
+            Post cached = mPost;
+            mPost = db.getClosestTime(Post.createCurrentTimePost());
+            if (cached.equals(mPost)) {
+                Snackbar.make(mFAB, "Это самый свежий социолог!", Snackbar.LENGTH_LONG).show();
                 mSwipeRefresh.setRefreshing(false);
+                isImageUpdating = false;
+            } else {
+                final ImageDownloader imageDownloader = new ImageDownloader(this) {
+                    @Override
+                    protected void onProgressUpdate(Integer... values) {
+                    }
+
+                    @Override
+                    protected void onPostExecute(String path) {
+                        mPost.setUriToImage(path);
+                        showPost();
+                        mSwipeRefresh.setRefreshing(false);
+                        isImageUpdating = false;
+                    }
+                };
+
+                imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
+
             }
-        };
 
-        imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
-
-
+        }
+        mSwipeRefresh.setRefreshing(false);
     }
 }

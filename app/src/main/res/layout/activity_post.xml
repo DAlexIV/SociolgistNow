@@ -1,7 +1,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <com.hse.dalexiv.vksignintest.acitivity.MyFabbyScrollView
             android:id="@+id/scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -20,12 +20,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:orientation="vertical">
-
+                android:paddingTop="@dimen/activity_vertical_margin">
 
                 <android.support.v7.widget.CardView
                     android:id="@+id/cardV"
@@ -113,17 +112,17 @@
                     android:id="@+id/progBarUnder"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
             </LinearLayout>
-        </ScrollView>
+        </com.hse.dalexiv.vksignintest.acitivity.MyFabbyScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
+
     <android.support.design.widget.FloatingActionButton
-        android:layout_height="wrap_content"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:onClick="fabClick"
-        android:src="@drawable/ic_question"
-        app:layout_anchor="@+id/swipeRefresh"
-        app:layout_anchorGravity="bottom|end"
-        app:layout_behavior="com.hse.dalexiv.vksignintest.app.FABScrollBehavior"/>
+        android:src="@drawable/ic_question" />
 </android.support.design.widget.CoordinatorLayout>

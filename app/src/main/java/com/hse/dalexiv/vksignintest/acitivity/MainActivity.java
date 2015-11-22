@@ -88,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
 
         db = new DBHelper(this, null, null, 3);
 
-
-
         VKDownloadManager downloader = new VKDownloadManager(new IShow() {
             @Override
             public void show(String text, boolean isLong) {

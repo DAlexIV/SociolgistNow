@@ -1,7 +1,5 @@
 package com.hse.dalexiv.vksignintest.model;
 
-import junit.framework.ComparisonFailure;
-
 import org.joda.time.DateTime;
 
 /**
@@ -68,8 +66,7 @@ public class Post implements Comparable<Post> {
         this.time = time;
     }
 
-    public static Post createCurrentTimePost()
-    {
+    public static Post createCurrentTimePost() {
         DateTime curTime = new DateTime();
         DateTime timeToFind = new DateTime(2015, 1, 1,
                 curTime.getHourOfDay(), curTime.getMinuteOfHour());
@@ -122,6 +119,13 @@ public class Post implements Comparable<Post> {
 
     public String getPostURL() {
         return postURL;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Post) &&
+            getTime().equals(((Post) o).getTime());
+
     }
 
     public String getFullPicURL() {
