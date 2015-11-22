@@ -1,107 +1,129 @@
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/swipeRefresh"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="match_parent">
 
-
-        tools:context="com.hse.dalexiv.vksignintest.acitivity.PostActivity">
-
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/scroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin">
+            android:layout_height="match_parent"
+            tools:context="com.hse.dalexiv.vksignintest.acitivity.PostActivity">
 
-
-            <android.support.v7.widget.CardView
-
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:onClick="cardClick"
-                card_view:cardUseCompatPadding="true">
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:orientation="vertical">
 
-                <LinearLayout
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/cardV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    android:layout_gravity="center"
+                    android:onClick="cardClick"
+                    card_view:cardUseCompatPadding="true">
 
-
-                    <ImageView
-                        android:id="@+id/imgView"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:onClick="imageClick" />
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                    <ProgressBar
-                        android:id="@+id/progBar"
-                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:id="@+id/txtView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="4dp"
-                        android:background="@color/lineColor" />
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="4dp">
 
                         <ImageView
-                            android:id="@+id/commentImg"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/imgView"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:layout_marginTop="@dimen/like_border"
-                            android:src="@drawable/ic_post_comment" />
+                            android:adjustViewBounds="true"
+                            android:onClick="imageClick" />
+
+                        <ProgressBar
+                            android:id="@+id/progBar"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
 
                         <TextView
-                            android:id="@+id/commsText"
-                            android:layout_width="wrap_content"
+                            android:id="@+id/txtView"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="6dp"
-                            android:layout_toRightOf="@id/commentImg"
-                            android:textColor="@color/commentColor" />
+                            android:layout_marginTop="10dp" />
 
-                        <ImageView
-                            android:id="@+id/likeImg"
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@color/lineColor" />
+
+                        <RelativeLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginTop="@dimen/like_border"
-                            android:src="@drawable/ic_post_btn_like_selected" />
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="4dp">
 
-                        <TextView
-                            android:id="@+id/likesText"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="4dp"
-                            android:layout_toLeftOf="@id/likeImg"
-                            android:textColor="@color/likeColor" />
-                    </RelativeLayout>
+                            <ImageView
+                                android:id="@+id/commentImg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_marginTop="@dimen/like_border"
+                                android:src="@drawable/ic_post_comment" />
 
-                </LinearLayout>
+                            <TextView
+                                android:id="@+id/commsText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="6dp"
+                                android:layout_toRightOf="@id/commentImg"
+                                android:textColor="@color/commentColor" />
 
-            </android.support.v7.widget.CardView>
-        </LinearLayout>
-    </ScrollView>
-</android.support.v4.widget.SwipeRefreshLayout>
+                            <ImageView
+                                android:id="@+id/likeImg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:layout_marginTop="@dimen/like_border"
+                                android:src="@drawable/ic_post_btn_like_selected" />
+
+                            <TextView
+                                android:id="@+id/likesText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="4dp"
+                                android:layout_toLeftOf="@id/likeImg"
+                                android:textColor="@color/likeColor" />
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                </android.support.v7.widget.CardView>
+
+                <ProgressBar
+                    android:id="@+id/progBarUnder"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_margin="16dp"
+        android:onClick="fabClick"
+        android:src="@drawable/ic_question"
+        app:layout_anchor="@+id/swipeRefresh"
+        app:layout_anchorGravity="bottom|end"
+        app:layout_behavior="com.hse.dalexiv.vksignintest.app.FABScrollBehavior"/>
+</android.support.design.widget.CoordinatorLayout>

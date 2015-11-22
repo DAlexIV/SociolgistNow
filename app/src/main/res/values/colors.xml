@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="likeColor">#388CD7</color>
-    <color name="commentColor">#A3A3A3</color>
+    <color name="likeColor">@color/primaryDark</color>
+    <color name="commentColor">@color/colorAccent</color>
     <color name="lineColor">#D0D0D0</color>
     <color name="primary">#FF9800</color>
     <color name="primaryDark">#EF6C00</color>

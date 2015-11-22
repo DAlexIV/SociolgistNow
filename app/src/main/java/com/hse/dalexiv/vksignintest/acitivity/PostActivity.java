@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -25,6 +26,9 @@ import java.lang.ref.WeakReference;
 
 public class PostActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     ProgressBar mProgressBar;
+    ProgressBar mProgressBarUnder;
+    CoordinatorLayout mCoordinatorLayout;
+
     ImageView mImageView;
     TextView mTextView;
     TextView mLikesTextView;
@@ -45,12 +49,15 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         mTextView = (TextView) findViewById(R.id.txtView);
         mLikesTextView = (TextView) findViewById(R.id.likesText);
         mCommsTextView = (TextView) findViewById(R.id.commsText);
+        mProgressBarUnder = (ProgressBar) findViewById(R.id.progBarUnder);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
         mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
         mSwipeRefresh.setOnRefreshListener(this);
         mSwipeRefresh.setColorSchemeColors(R.color.primary, R.color.primaryDark, R.color.colorAccent);
 
         mProgressBar.setVisibility(View.GONE);
+        mProgressBarUnder.setVisibility(View.GONE);
 
         Gson gson = new Gson();
         String json = getIntent().getStringExtra("post");
@@ -86,8 +93,30 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                 mProgressBar.setProgress(values[0]);
             }
         };
-        downloadFull.execute(new String[]{mPost.getFullPicURL(), "full.jpg"});
+        downloadFull.execute(new String[]{mPost.getFullPicURL(), MainActivity.IMAGE_NAME_FULL});
         mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void fabClick(View v)
+    {
+        mPost = db.getRandomPost();
+
+        final ImageDownloader imageDownloader = new ImageDownloader(this) {
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                mProgressBarUnder.setProgress(values[0]);
+            }
+
+            @Override
+            protected void onPostExecute(String path) {
+                mPost.setUriToImage(path);
+                showPost();
+                mProgressBarUnder.setVisibility(View.GONE);
+            }
+        };
+
+        imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
+        mProgressBarUnder.setVisibility(View.VISIBLE);
     }
 
     @Override
