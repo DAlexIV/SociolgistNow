@@ -2,13 +2,10 @@ package com.hse.dalexiv.vksignintest.downloader;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.hse.dalexiv.vksignintest.acitivity.MainActivity;
@@ -97,7 +94,7 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Strin
 
             return filename;
         } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
             return null;
         }
 

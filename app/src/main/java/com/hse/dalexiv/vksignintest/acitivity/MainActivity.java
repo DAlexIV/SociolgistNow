@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        db = new DBHelper(this, null, null, 2);
+        db = new DBHelper(this, null, null, 3);
 
 
 
@@ -105,11 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         db.insert(post);
                 }
 
-                DateTime curTime = new DateTime();
-                DateTime timeToFind = new DateTime(2015, 1, 1,
-                        curTime.getHourOfDay(), curTime.getMinuteOfHour());
-
-                target = db.getClosestTime(new Post(timeToFind));
+                target = db.getClosestTime(Post.createCurrentTimePost());
                 //mText.setText(mText.getText() + target.toString());
 
                 mText.setText("Downloading fresh pic");

@@ -37,7 +37,7 @@ public class Post implements Comparable<Post> {
     }
 
     public Post(String time, String postURL, String previewPicURL, String fullPicURL, String text,
-                int comments, int likes) {
+                int likes, int comments) {
         this(previewPicURL, fullPicURL, postURL, text, time);
 
         this.hours = Integer.parseInt(time.split(":")[0]);
@@ -66,6 +66,15 @@ public class Post implements Comparable<Post> {
 
     public Post(DateTime time) {
         this.time = time;
+    }
+
+    public static Post createCurrentTimePost()
+    {
+        DateTime curTime = new DateTime();
+        DateTime timeToFind = new DateTime(2015, 1, 1,
+                curTime.getHourOfDay(), curTime.getMinuteOfHour());
+
+        return new Post(timeToFind);
     }
 
     @Override
