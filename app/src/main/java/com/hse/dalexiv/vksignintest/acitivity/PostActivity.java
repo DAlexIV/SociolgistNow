@@ -1,6 +1,7 @@
 package com.hse.dalexiv.vksignintest.acitivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -129,6 +130,15 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                     mProgressBarUnder.setVisibility(View.GONE);
                     mProgressBarUnder.setProgress(0);
                     isImageUpdating = false;
+
+
+                    SharedPreferences pref = getPreferences(MODE_PRIVATE);
+                    if (pref.getBoolean("my_first_time", true)) {
+                        // we are first time
+                        Snackbar.make(mFAB, R.string.firstTimeMes, Snackbar.LENGTH_LONG).show();
+
+                        pref.edit().putBoolean("my_first_time", false).commit();
+                    }
                 }
             };
 
@@ -178,7 +188,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
             Post cached = mPost;
             mPost = db.getClosestTime(Post.createCurrentTimePost());
             if (cached.equals(mPost)) {
-                Snackbar.make(mFAB, "Это самый свежий социолог!", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mFAB, R.string.newest, Snackbar.LENGTH_LONG).show();
                 mSwipeRefresh.setRefreshing(false);
                 isImageUpdating = false;
             } else {
