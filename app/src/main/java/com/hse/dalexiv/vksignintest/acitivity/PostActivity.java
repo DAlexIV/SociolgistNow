@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +32,8 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
     private volatile boolean isImageUpdating;
     private ProgressBar mProgressBar;
     private ProgressBar mProgressBarUnder;
+
+    private ShareActionProvider mShareActionProvider;
 
     private ImageView mImageView;
     private TextView mTextView;
@@ -152,6 +156,9 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_post, menu);
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        setShareActionProvider(createSharingIntent());
         return true;
     }
 
@@ -161,12 +168,6 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -179,6 +180,8 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         mTextView.setText(mPost.getText());
         mLikesTextView.setText(Integer.toString(mPost.getLikes()));
         mCommsTextView.setText(Integer.toString(mPost.getComments()));
+        setShareActionProvider(createSharingIntent());
+
     }
 
     @Override
@@ -212,5 +215,26 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         }
         mSwipeRefresh.setRefreshing(false);
+    }
+
+    private void setShareActionProvider(Intent shareIntent) {
+        if (mShareActionProvider != null)
+            mShareActionProvider.setShareIntent(shareIntent);
+    }
+
+    private Intent createSharingIntent() {
+        final Intent share = new Intent(Intent.ACTION_SEND);
+        String type = "image/*";
+        String mediaPath = "file://" + Environment.getExternalStorageDirectory() + "/" + mPost.getUriToImage();
+        share.setType(type);
+        share.putExtra(Intent.EXTRA_STREAM, Uri.parse(mediaPath))
+                .putExtra(Intent.EXTRA_TEXT, mPost.getText() + " Больше на vk.com/dreaming_sociologist");
+        return share;
+    }
+
+    public void goToVKGroup(MenuItem item) {
+        Intent toBrowser = new Intent(Intent.ACTION_VIEW);
+        toBrowser.setData(Uri.parse(MainActivity.GROUP_URL));
+        startActivity(toBrowser);
     }
 }

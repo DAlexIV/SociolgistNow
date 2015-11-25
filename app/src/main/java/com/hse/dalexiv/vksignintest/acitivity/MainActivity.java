@@ -35,6 +35,7 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     public static final String IMAGE_NAME = "socio.jpg";
+    public static final String GROUP_URL = "http://vk.com/dreaming_sociologist";
     public static final String IMAGE_NAME_FULL = "full.jpg";
     private final int MY_REQUEST_CODE = 777;
     private TextView mText;
@@ -119,10 +120,6 @@ public class MainActivity extends AppCompatActivity {
         mText.setText("Initializing database");
         mProgressBar.setProgress(30);
 
-            /*
-            for (Post post : fromDB)
-                mText.setText(mText.getText() + post.toString());
-    `       */
     }
 
 
