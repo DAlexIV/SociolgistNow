@@ -51,8 +51,6 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Strin
         int count;
         try {
 
-            verifyStoragePermissions(mContext.get());
-
             String urlText = params[0][0];
             String filename = params[0][1];
 

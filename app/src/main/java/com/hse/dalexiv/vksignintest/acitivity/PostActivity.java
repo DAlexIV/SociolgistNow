@@ -52,6 +52,20 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
+        initializeViews();
+
+        Gson gson = new Gson();
+        String json = getIntent().getStringExtra("post");
+        mPost = gson.fromJson(json, Post.class);
+
+        db = new DBHelper(this, null, null, 3);
+
+        showPost();
+
+        isImageUpdating = false;
+    }
+
+    private void initializeViews() {
         mProgressBar = (ProgressBar) findViewById(R.id.progBar);
         mImageView = (ImageView) findViewById(R.id.imgView);
         mTextView = (TextView) findViewById(R.id.txtView);
@@ -67,18 +81,10 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         mSwipeRefresh.setOnRefreshListener(this);
         mSwipeRefresh.setColorSchemeColors(R.color.primary, R.color.primaryDark, R.color.colorAccent);
 
+        mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.GONE);
+        mProgressBarUnder.setIndeterminate(true);
         mProgressBarUnder.setVisibility(View.GONE);
-
-        Gson gson = new Gson();
-        String json = getIntent().getStringExtra("post");
-        mPost = gson.fromJson(json, Post.class);
-
-        db = new DBHelper(this, null, null, 3);
-
-        showPost();
-
-        isImageUpdating = false;
     }
 
     public void cardClick(View v) {
@@ -95,24 +101,32 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
             ImageDownloader downloadFull = new ImageDownloader(this) {
                 @Override
                 protected void onPostExecute(String uri) {
-                    Intent toGallery = new Intent(Intent.ACTION_VIEW);
-                    toGallery.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory() + "/" + uri),
-                            "image/*");
-                    startActivity(toGallery);
+                    if (uri == null)
+                        Snackbar.make(mFAB, R.string.no_connection, Snackbar.LENGTH_LONG).show();
+                    else {
+                        Intent toGallery = new Intent(Intent.ACTION_VIEW);
+                        toGallery.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory() + "/" + uri),
+                                "image/*");
+                        startActivity(toGallery);
+                    }
 
                     mProgressBar.setVisibility(View.GONE);
                     mProgressBar.setProgress(0);
+                    mProgressBar.setIndeterminate(false);
                     isImageUpdating = false;
+
                 }
 
                 @Override
                 protected void onProgressUpdate(Integer... values) {
+                    if (mProgressBar.isIndeterminate())
+                        mProgressBar.setIndeterminate(false);
                     mProgressBar.setProgress(values[0]);
                 }
             };
             downloadFull.execute(new String[]{mPost.getFullPicURL(), MainActivity.IMAGE_NAME_FULL});
             mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setProgress(10);
+            mFabbyScrollView.scrollTo(0, mFabbyScrollView.getBottom());
         }
     }
 
@@ -124,6 +138,8 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
             final ImageDownloader imageDownloader = new ImageDownloader(this) {
                 @Override
                 protected void onProgressUpdate(Integer... values) {
+                    if (mProgressBarUnder.isIndeterminate())
+                        mProgressBarUnder.setIndeterminate(false);
                     mProgressBarUnder.setProgress(values[0]);
                 }
 
@@ -134,6 +150,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                     mProgressBarUnder.setVisibility(View.GONE);
                     mProgressBarUnder.setProgress(0);
                     isImageUpdating = false;
+                    mProgressBarUnder.setIndeterminate(true);
 
 
                     SharedPreferences pref = getPreferences(MODE_PRIVATE);
@@ -148,7 +165,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
             mProgressBarUnder.setVisibility(View.VISIBLE);
-            mProgressBarUnder.setProgress(10);
+            mFabbyScrollView.scrollTo(0, mFabbyScrollView.getBottom());
         }
     }
 
@@ -173,15 +190,18 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void showPost() {
-        currentPic
-                = new WeakReference<>(LoadImage.getBitmapFromFile(mPost.getUriToImage()));
-        mImageView.setImageBitmap(currentPic.get());
+        if (mPost.getUriToImage() == null)
+            Snackbar.make(mFAB, R.string.no_connection, Snackbar.LENGTH_LONG).show();
+        else {
+            currentPic
+                    = new WeakReference<>(LoadImage.getBitmapFromFile(mPost.getUriToImage()));
+            mImageView.setImageBitmap(currentPic.get());
 
-        mTextView.setText(mPost.getText());
-        mLikesTextView.setText(Integer.toString(mPost.getLikes()));
-        mCommsTextView.setText(Integer.toString(mPost.getComments()));
-        setShareActionProvider(createSharingIntent());
-
+            mTextView.setText(mPost.getText());
+            mLikesTextView.setText(Integer.toString(mPost.getLikes()));
+            mCommsTextView.setText(Integer.toString(mPost.getComments()));
+            setShareActionProvider(createSharingIntent());
+        }
     }
 
     @Override
@@ -228,7 +248,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         String mediaPath = "file://" + Environment.getExternalStorageDirectory() + "/" + mPost.getUriToImage();
         share.setType(type);
         share.putExtra(Intent.EXTRA_STREAM, Uri.parse(mediaPath))
-                .putExtra(Intent.EXTRA_TEXT, mPost.getText() + " Больше на vk.com/dreaming_sociologist");
+                .putExtra(Intent.EXTRA_TEXT, mPost.getText() + getString(R.string.tweetMes));
         return share;
     }
 

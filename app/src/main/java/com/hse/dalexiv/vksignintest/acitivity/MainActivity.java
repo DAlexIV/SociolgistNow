@@ -2,19 +2,13 @@ package com.hse.dalexiv.vksignintest.acitivity;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -23,22 +17,17 @@ import com.hse.dalexiv.vksignintest.R;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.hse.dalexiv.vksignintest.downloader.ImageDownloader;
-import com.hse.dalexiv.vksignintest.downloader.LoadImage;
 import com.hse.dalexiv.vksignintest.downloader.VKDownloadManager;
 import com.hse.dalexiv.vksignintest.model.Post;
 
-import org.joda.time.DateTime;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+    private final String TAG = this.getClass().getSimpleName();
     public static final String IMAGE_NAME = "socio.jpg";
     public static final String GROUP_URL = "http://vk.com/dreaming_sociologist";
     public static final String IMAGE_NAME_FULL = "full.jpg";
     private final int MY_REQUEST_CODE = 777;
-    private TextView mText;
     private ProgressBar mProgressBar;
     private DBHelper db;
     private Post target;
@@ -51,12 +40,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mText = (TextView) findViewById(R.id.mText);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mProgressBar.setMax(100);
 
         String response = getIntent().getExtras().getString("result");
         if (response.equals("OK")) {
-            mProgressBar.setMax(100);
             requestPerms();
             downloadStuff();
 
@@ -68,12 +56,13 @@ public class MainActivity extends AppCompatActivity {
         final ImageDownloader imageDownloader = new ImageDownloader(this) {
             @Override
             protected void onProgressUpdate(Integer... values) {
+                if (mProgressBar.isIndeterminate())
+                    mProgressBar.setIndeterminate(false);
                 mProgressBar.setProgress(values[0]);
             }
 
             @Override
             protected void onPostExecute(String path) {
-                mText.setText("Done!");
                 target.setUriToImage(path);
                 // Start new activity with path intent
                 Intent toPostActivity = new Intent(MainActivity.this, PostActivity.class);
@@ -94,34 +83,33 @@ public class MainActivity extends AppCompatActivity {
             public void show(String text, boolean isLong) {
                 showException(text, isLong);
             }
-        }) {
+        }, this) {
             @Override
             public void processResults(Post[] posts) {
-
-                if (db.checkIfEmpty()) {
-                    mText.setText("Downloading links");
-                    Arrays.sort(posts);
-                    for (Post post : posts)
-                        db.insert(post);
-                }
-
-                target = db.getClosestTime(Post.createCurrentTimePost());
-                //mText.setText(mText.getText() + target.toString());
-
-                mText.setText("Downloading fresh pic");
-                imageDownloader.execute(new String[]{target.getPreviewPicURL(), IMAGE_NAME});
+                Arrays.sort(posts);
+                for (Post post : posts)
+                    db.insert(post);
+                getCurrentPostAndDownloadPic(imageDownloader);
             }
         };
 
-        mText.setText("Checking permissions");
-        mProgressBar.setProgress(10);
+        mProgressBar.setIndeterminate(true);
         downloader.checkPermissions();
 
-        mText.setText("Initializing database");
-        mProgressBar.setProgress(30);
+        if (db.checkIfEmpty()) {
+            downloader.downloadAllTimesAndLinks();
+        } else {
+            getCurrentPostAndDownloadPic(imageDownloader);
+        }
 
     }
 
+    private void getCurrentPostAndDownloadPic(ImageDownloader imageDownloader) {
+        target = db.getClosestTime(Post.createCurrentTimePost());
+        //mText.setText(mText.getText() + target.toString());
+
+        imageDownloader.execute(new String[]{target.getPreviewPicURL(), IMAGE_NAME});
+    }
 
 
     private void requestPerms() {
@@ -168,24 +156,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showException(String exceptionText, boolean isLong) {
-        mText.setText(exceptionText);
+        if (exceptionText.equals(getString(R.string.noInGroup)))
 
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MY_REQUEST_CODE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    mText.setText("Thanks");
-                }
-                else
-                {
-                    mText.setText("Sorry, we can't work without saving pics on your device");
-                }
-        }
-
+        Log.d(TAG, exceptionText);
     }
 }

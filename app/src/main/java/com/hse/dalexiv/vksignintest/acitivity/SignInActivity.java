@@ -7,20 +7,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.hse.dalexiv.vksignintest.R;
+import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
 public class SignInActivity extends Activity {
+    DBHelper db;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken vkAccessToken) {
-                startActivity(new Intent(SignInActivity.this, MainActivity.class).putExtra("result", "OK"));
                 finish();
+                startActivity(new Intent(SignInActivity.this, MainActivity.class).putExtra("result", "OK"));
             }
 
             @Override
@@ -37,7 +39,14 @@ public class SignInActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signin_activity);
-        VKSdk.login(this);
+        db = new DBHelper(this, null, null, 3);
+        if (db.checkIfEmpty())
+            VKSdk.login(this);
+        else {
+            startActivity(new Intent(SignInActivity.this, MainActivity.class).putExtra("result", "OK"));
+            finish();
+        }
+
     }
 
     @Override

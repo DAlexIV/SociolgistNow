@@ -1,7 +1,9 @@
 package com.hse.dalexiv.vksignintest.downloader;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.hse.dalexiv.vksignintest.R;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.model.Post;
 import com.hse.dalexiv.vksignintest.model.PostProcessor;
@@ -29,9 +31,11 @@ public abstract class VKDownloadManager implements IShow {
 
     String TAG = VKDownloadManager.class.toString();
     IShow exceptionCallback;
+    Context context;
 
-    public VKDownloadManager(IShow exceptionCallback) {
+    public VKDownloadManager(IShow exceptionCallback, Context context) {
         this.exceptionCallback = exceptionCallback;
+        this.context = context;
     }
 
     @Override
@@ -136,12 +140,7 @@ public abstract class VKDownloadManager implements IShow {
                 JSONObject jsonResp = response.json;
                 try {
                     if (jsonResp.get("response").toString().equals("0"))
-                        show("You aren't member of this group, sry", true);
-                    else if (jsonResp.get("response").toString().equals("1")) {
-                        show("Everything is okay, stepping next", false);
-                        downloadAllTimesAndLinks();
-                    } else
-                        throw new Exception("WRONG RESPONSE");
+                        show(context.getString(R.string.noInGroup), true);
                 } catch
                         (Exception e) {
                     show(e.getMessage(), true);
