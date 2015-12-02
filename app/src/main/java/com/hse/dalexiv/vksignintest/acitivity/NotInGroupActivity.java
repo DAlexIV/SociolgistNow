@@ -16,7 +16,7 @@ public class NotInGroupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_not_in_group);
         mCoordinator = (CoordinatorLayout) findViewById(R.id.coordinator2);
-        Snackbar.make(mCoordinator, R.string.sorry_text, Snackbar.LENGTH_LONG);
+        //Snackbar.make(mCoordinator, R.string.sorry_text, Snackbar.LENGTH_LONG).show(); make dialogd
     }
 
     @Override

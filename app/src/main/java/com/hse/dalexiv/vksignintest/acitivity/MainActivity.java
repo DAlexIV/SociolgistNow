@@ -10,10 +10,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.hse.dalexiv.vksignintest.R;
+import com.hse.dalexiv.vksignintest.app.AppConstants;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.hse.dalexiv.vksignintest.downloader.ImageDownloader;
@@ -24,9 +24,6 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
-    public static final String IMAGE_NAME = "socio.jpg";
-    public static final String GROUP_URL = "http://vk.com/dreaming_sociologist";
-    public static final String IMAGE_NAME_FULL = "full.jpg";
     private final int MY_REQUEST_CODE = 777;
     private ProgressBar mProgressBar;
     private DBHelper db;
@@ -94,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mProgressBar.setIndeterminate(true);
-        downloader.checkPermissions();
 
         if (db.checkIfEmpty()) {
+            downloader.checkPermissions();
             downloader.downloadAllTimesAndLinks();
         } else {
             getCurrentPostAndDownloadPic(imageDownloader);
@@ -108,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         target = db.getClosestTime(Post.createCurrentTimePost());
         //mText.setText(mText.getText() + target.toString());
 
-        imageDownloader.execute(new String[]{target.getPreviewPicURL(), IMAGE_NAME});
+        imageDownloader.execute(new String[]{target.getPreviewPicURL(), AppConstants.IMAGE_NAME});
     }
 
 

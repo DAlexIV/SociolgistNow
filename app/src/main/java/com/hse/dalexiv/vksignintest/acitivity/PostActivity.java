@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.hse.dalexiv.vksignintest.R;
+import com.hse.dalexiv.vksignintest.app.AppConstants;
 import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.hse.dalexiv.vksignintest.downloader.ImageDownloader;
 import com.hse.dalexiv.vksignintest.downloader.LoadImage;
@@ -124,7 +125,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                     mProgressBar.setProgress(values[0]);
                 }
             };
-            downloadFull.execute(new String[]{mPost.getFullPicURL(), MainActivity.IMAGE_NAME_FULL});
+            downloadFull.execute(new String[]{mPost.getFullPicURL(), AppConstants.IMAGE_NAME_FULL});
             mProgressBar.setVisibility(View.VISIBLE);
             mFabbyScrollView.scrollTo(0, mFabbyScrollView.getBottom());
         }
@@ -163,7 +164,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
             };
 
-            imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
+            imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), AppConstants.IMAGE_NAME});
             mProgressBarUnder.setVisibility(View.VISIBLE);
             mFabbyScrollView.scrollTo(0, mFabbyScrollView.getBottom());
         }
@@ -229,7 +230,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                     }
                 };
 
-                imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), MainActivity.IMAGE_NAME});
+                imageDownloader.execute(new String[]{mPost.getPreviewPicURL(), AppConstants.IMAGE_NAME});
 
             }
 
@@ -254,7 +255,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     public void goToVKGroup(MenuItem item) {
         Intent toBrowser = new Intent(Intent.ACTION_VIEW);
-        toBrowser.setData(Uri.parse(MainActivity.GROUP_URL));
+        toBrowser.setData(Uri.parse(AppConstants.GROUP_URL));
         startActivity(toBrowser);
     }
 }
