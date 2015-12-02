@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.google.gson.Gson;
@@ -24,14 +25,25 @@ import com.hse.dalexiv.vksignintest.downloader.ImageDownloader;
 import com.hse.dalexiv.vksignintest.downloader.VKDownloadManager;
 import com.hse.dalexiv.vksignintest.model.Post;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
-    private final int MY_REQUEST_CODE = 777;
+    private final static Random gen = new Random();
+    private final int DB_VERSION = 3;
     private ProgressBar mProgressBar;
+    private ImageView mBackground;
     private DBHelper db;
     private Post target;
+
+    private ArrayList<Integer> backs = new ArrayList<Integer>() {{
+        add(R.drawable.loading_image);
+        add(R.drawable.loading_image2);
+        add(R.drawable.loading_image3);
+    }};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +53,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
+        mBackground = (ImageView) findViewById(R.id.background);
+        setRandomBack();
+
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mProgressBar.setMax(100);
 
         String response = getIntent().getExtras().getString("result");
         if (response.equals("OK")) {
-            requestPerms();
             downloadStuffAndStartActivity();
 
         } else
@@ -77,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        db = new DBHelper(this, null, null, 3);
+        db = new DBHelper(this, null, null, DB_VERSION);
 
         VKDownloadManager downloader = new VKDownloadManager(new IShow() {
             @Override
@@ -111,27 +125,6 @@ public class MainActivity extends AppCompatActivity {
         imageDownloader.execute(new String[]{target.getPreviewPicURL(), AppConstants.IMAGE_NAME});
     }
 
-
-    private void requestPerms() {
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    || ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE))
-                showException("We need to save photos somewhere, so agree pls", true);
-            else
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_REQUEST_CODE);
-        }
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -154,12 +147,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     private void showException(final String exceptionText, boolean isLong) {
         if (exceptionText != null) {
             if (exceptionText.equals(getString(R.string.sorry_text))
-                    || exceptionText.equals(getString(R.string.bad_auth)))
-            {
+                    || exceptionText.equals(getString(R.string.bad_auth))) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(exceptionText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -174,8 +165,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).create().show();
                 Log.d(TAG, exceptionText);
-            }
-            else {
+            } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(exceptionText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -193,5 +183,10 @@ public class MainActivity extends AppCompatActivity {
         Intent toBrowser = new Intent(Intent.ACTION_VIEW);
         toBrowser.setData(Uri.parse(AppConstants.GROUP_URL));
         startActivity(toBrowser);
+    }
+
+    private void setRandomBack() {
+        mBackground.setImageDrawable(ContextCompat.getDrawable(this,
+                backs.get(gen.nextInt(backs.size()))));
     }
 }
