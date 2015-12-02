@@ -40,7 +40,7 @@ public class SignInActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signin_activity);
         db = new DBHelper(this, null, null, 3);
-        if (db.checkIfEmpty())
+        if (!VKSdk.isLoggedIn())
             VKSdk.login(this);
         else {
             startActivity(new Intent(SignInActivity.this, MainActivity.class).putExtra("result", "OK"));

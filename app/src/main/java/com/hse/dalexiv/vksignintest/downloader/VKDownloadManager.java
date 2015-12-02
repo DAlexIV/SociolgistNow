@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.hse.dalexiv.vksignintest.acitivity.NotInGroupActivity;
+import com.hse.dalexiv.vksignintest.R;
 import com.hse.dalexiv.vksignintest.app.AppConstants;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.model.Post;
@@ -100,12 +101,12 @@ public abstract class VKDownloadManager implements IShow {
     public void downloadAllTimesAndLinks() {
 
         VKRequest main_req = VKApi.wall()
-                .get(VKParameters.from(VKApiConst.OWNER_ID, AppConstants.GROUP_ID, VKApiConst.COUNT, numberOfPosts));
+                .get(VKParameters.from(VKApiConst.OWNER_ID, "-" + AppConstants.GROUP_ID, VKApiConst.COUNT, AppConstants.NUMBER_OF_POSTS));
         main_req.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onError(VKError error) {
                 super.onError(error);
-                show(error.errorMessage, true);
+                show(error.toString(), true);
             }
 
             @Override
@@ -129,7 +130,8 @@ public abstract class VKDownloadManager implements IShow {
         });
     }
 
-    public void checkPermissions() {
+
+    public void checkPermissionsAndThenDownload() {
         final VKRequest checkPermission = VKApi.groups().isMember(VKParameters.from(VKApiConst.GROUP_ID, AppConstants.GROUP_ID));
         checkPermission.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
@@ -139,7 +141,9 @@ public abstract class VKDownloadManager implements IShow {
                 JSONObject jsonResp = response.json;
                 try {
                     if (jsonResp.get("response").toString().equals("0"))
-                        context.startActivity(new Intent(context, NotInGroupActivity.class));
+                        show(context.getString(R.string.sorry_text), true);
+                    else
+                        downloadAllTimesAndLinks();
                 } catch
                         (Exception e) {
                     show(e.getMessage(), true);
@@ -150,7 +154,7 @@ public abstract class VKDownloadManager implements IShow {
             @Override
             public void onError(VKError error) {
                 super.onError(error);
-                context.startActivity(new Intent(context, NotInGroupActivity.class));
+                show(error.toString(), true);
             }
         });
     }

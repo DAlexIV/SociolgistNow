@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -22,6 +23,8 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.hse.dalexiv.vksignintest.R;
 import com.hse.dalexiv.vksignintest.app.AppConstants;
+
+import com.hse.dalexiv.vksignintest.comms.ICallback;
 import com.hse.dalexiv.vksignintest.db.DBHelper;
 import com.hse.dalexiv.vksignintest.downloader.ImageDownloader;
 import com.hse.dalexiv.vksignintest.downloader.LoadImage;
@@ -35,6 +38,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
     private ProgressBar mProgressBarUnder;
 
     private ShareActionProvider mShareActionProvider;
+    private CoordinatorLayout mCoordinatorLayout;
 
     private ImageView mImageView;
     private TextView mTextView;
@@ -61,7 +65,12 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         db = new DBHelper(this, null, null, 3);
 
-        showPost();
+        showPost(new ICallback() {
+            @Override
+            public void callback(View v) {
+                onRefresh();
+            }
+        });
 
         isImageUpdating = false;
     }
@@ -74,6 +83,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         mCommsTextView = (TextView) findViewById(R.id.commsText);
         mProgressBarUnder = (ProgressBar) findViewById(R.id.progBarUnder);
         mFabbyScrollView = (MyFabbyScrollView) findViewById(R.id.scroll);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
         mFAB = (FloatingActionButton) findViewById(R.id.fab);
 
         mFabbyScrollView.setFab(mFAB);
@@ -103,7 +113,12 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                 @Override
                 protected void onPostExecute(String uri) {
                     if (uri == null)
-                        Snackbar.make(mFAB, R.string.no_connection, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mCoordinatorLayout, R.string.no_connection2, Snackbar.LENGTH_LONG).setAction("Ещё раз!", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                imageClick(v);
+                            }
+                        }).show();
                     else {
                         Intent toGallery = new Intent(Intent.ACTION_VIEW);
                         toGallery.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory() + "/" + uri),
@@ -147,7 +162,12 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                 @Override
                 protected void onPostExecute(String path) {
                     mPost.setUriToImage(path);
-                    showPost();
+                    showPost(new ICallback() {
+                        @Override
+                        public void callback(View v) {
+                            fabClick(v);
+                        }
+                    });
                     mProgressBarUnder.setVisibility(View.GONE);
                     mProgressBarUnder.setProgress(0);
                     isImageUpdating = false;
@@ -157,9 +177,9 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                     SharedPreferences pref = getPreferences(MODE_PRIVATE);
                     if (pref.getBoolean("my_first_time", true)) {
                         // we are first time
-                        Snackbar.make(mFAB, R.string.firstTimeMes, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mCoordinatorLayout, R.string.firstTimeMes, Snackbar.LENGTH_LONG).show();
 
-                        pref.edit().putBoolean("my_first_time", false).commit();
+                        pref.edit().putBoolean("my_first_time", false).apply();
                     }
                 }
             };
@@ -190,9 +210,14 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
         return super.onOptionsItemSelected(item);
     }
 
-    public void showPost() {
+    public void showPost(final ICallback callback) {
         if (mPost.getUriToImage() == null)
-            Snackbar.make(mFAB, R.string.no_connection, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mCoordinatorLayout, R.string.no_connection, Snackbar.LENGTH_LONG).setAction("Ещё раз!", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    callback.callback(v);
+                }
+            }).show();
         else {
             currentPic
                     = new WeakReference<>(LoadImage.getBitmapFromFile(mPost.getUriToImage()));
@@ -211,8 +236,8 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
             isImageUpdating = true;
             Post cached = mPost;
             mPost = db.getClosestTime(Post.createCurrentTimePost());
-            if (cached.equals(mPost)) {
-                Snackbar.make(mFAB, R.string.newest, Snackbar.LENGTH_LONG).show();
+            if (cached.equals(mPost) && cached.getUriToImage() != null) {
+                Snackbar.make(mCoordinatorLayout, R.string.newest, Snackbar.LENGTH_LONG).show();
                 mSwipeRefresh.setRefreshing(false);
                 isImageUpdating = false;
             } else {
@@ -224,7 +249,12 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                     @Override
                     protected void onPostExecute(String path) {
                         mPost.setUriToImage(path);
-                        showPost();
+                        showPost(new ICallback() {
+                            @Override
+                            public void callback(View v) {
+                                onRefresh();
+                            }
+                        });
                         mSwipeRefresh.setRefreshing(false);
                         isImageUpdating = false;
                     }

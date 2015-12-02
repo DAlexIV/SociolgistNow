@@ -1,8 +1,12 @@
 package com.hse.dalexiv.vksignintest.acitivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -43,13 +47,13 @@ public class MainActivity extends AppCompatActivity {
         String response = getIntent().getExtras().getString("result");
         if (response.equals("OK")) {
             requestPerms();
-            downloadStuff();
+            downloadStuffAndStartActivity();
 
         } else
-            showException("Login was failed, sry", true);
+            showException(getString(R.string.bad_auth), true);
     }
 
-    private void downloadStuff() {
+    private void downloadStuffAndStartActivity() {
         final ImageDownloader imageDownloader = new ImageDownloader(this) {
             @Override
             protected void onProgressUpdate(Integer... values) {
@@ -93,8 +97,7 @@ public class MainActivity extends AppCompatActivity {
         mProgressBar.setIndeterminate(true);
 
         if (db.checkIfEmpty()) {
-            downloader.checkPermissions();
-            downloader.downloadAllTimesAndLinks();
+            downloader.checkPermissionsAndThenDownload();
         } else {
             getCurrentPostAndDownloadPic(imageDownloader);
         }
@@ -152,9 +155,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void showException(String exceptionText, boolean isLong) {
-        if (exceptionText.equals(getString(R.string.noInGroup)))
+    private void showException(final String exceptionText, boolean isLong) {
+        if (exceptionText != null) {
+            if (exceptionText.equals(getString(R.string.sorry_text))
+                    || exceptionText.equals(getString(R.string.bad_auth)))
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(exceptionText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (exceptionText.equals(getString(R.string.bad_auth))) {
+                            finish();
+                            startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                        } else if (exceptionText.equals(getString(R.string.sorry_text))) {
+                            finish();
+                            goToVKGroup();
+                        }
+                    }
+                }).create().show();
+                Log.d(TAG, exceptionText);
+            }
+            else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(exceptionText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-        Log.d(TAG, exceptionText);
+                    }
+                }).create().show();
+                Log.d(TAG, exceptionText);
+            }
+        }
+
+    }
+
+    public void goToVKGroup() {
+        Intent toBrowser = new Intent(Intent.ACTION_VIEW);
+        toBrowser.setData(Uri.parse(AppConstants.GROUP_URL));
+        startActivity(toBrowser);
     }
 }
