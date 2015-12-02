@@ -3,6 +3,7 @@
     <integer name="com_vk_sdk_AppId">5095182</integer>
     <string name="hello_world">Failed to log in with VK</string>
 
+    <string name="ok">OK</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_post">Социолог сейчас</string>
@@ -10,8 +11,9 @@
     <string name="newest">Это самый свежий социолог!</string>
     <string name="share">Shareee</string>
     <string name="tweetMes">Спит сейчас на vk.com/dreaming_sociologist</string>
-    <string name="noInGroup">You aren\'t member of this group, sry</string>
+    <string name="bad_auth">Без предоставления доступа к твоему аккаунту, мы не сможем скачивать посты ;(</string>
     <string name="title_activity_not_in_group">NotInGroupActivity</string>
     <string name="sorry_text">К сожалению Спящий Социолог это приватная группа, но не беспокойся, мы уже отправили твой запрос на вступление в группу</string>
-    <string name="no_connection">Мы не можем поставлять новых социологов без интернета :(</string>
+    <string name="no_connection">Не можем поставлять новых социологов без интернета :(</string>
+    <string name="no_connection2">Не можем поставлять больших социологов без интернета :(</string>
 </resources>

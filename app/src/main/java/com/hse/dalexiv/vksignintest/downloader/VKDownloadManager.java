@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.hse.dalexiv.vksignintest.R;
+import com.hse.dalexiv.vksignintest.app.AppConstants;
 import com.hse.dalexiv.vksignintest.comms.IShow;
 import com.hse.dalexiv.vksignintest.model.Post;
 import com.hse.dalexiv.vksignintest.model.PostProcessor;
@@ -25,9 +26,6 @@ import java.util.List;
  * Created by dalex on 11/3/2015.
  */
 public abstract class VKDownloadManager implements IShow {
-    private final String TEST_ID = "50323156";
-    private final String GROUP_REF = "http://vk.com/dreaming_sociologist?w=wall-92209938_";
-    private final String GROUP_ID = "-92209938";
 
     String TAG = VKDownloadManager.class.toString();
     IShow exceptionCallback;
@@ -46,7 +44,7 @@ public abstract class VKDownloadManager implements IShow {
 
     public String testRequest() {
         final String[] myResponse = new String[1];
-        VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS, TEST_ID));
+        VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS, AppConstants.TEST_ID));
         request.executeSyncWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
@@ -74,7 +72,7 @@ public abstract class VKDownloadManager implements IShow {
                     try {
                         JSONObject photos = (JSONObject) ((JSONObject) attach.get(0)).get("photo");
                         String linkToPreviewPic = photos.get("photo_604").toString();
-                        String linkToPost = GROUP_REF + post.get("id");
+                        String linkToPost = AppConstants.GROUP_REF + post.get("id");
                         String linkToMaxSize = getMaxSize(photos);
                         JSONObject likesObj = (JSONObject) post.get("likes");
                         JSONObject commentsObj = (JSONObject) post.get("comments");
@@ -101,12 +99,12 @@ public abstract class VKDownloadManager implements IShow {
     public void downloadAllTimesAndLinks() {
 
         VKRequest main_req = VKApi.wall()
-                .get(VKParameters.from(VKApiConst.OWNER_ID, GROUP_ID, VKApiConst.COUNT, "100"));
+                .get(VKParameters.from(VKApiConst.OWNER_ID, "-" + AppConstants.GROUP_ID, VKApiConst.COUNT, AppConstants.NUMBER_OF_POSTS));
         main_req.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onError(VKError error) {
                 super.onError(error);
-                show(error.errorMessage, true);
+                show(error.toString(), true);
             }
 
             @Override
@@ -130,8 +128,8 @@ public abstract class VKDownloadManager implements IShow {
         });
     }
 
-    public void checkPermissions() {
-        final VKRequest checkPermission = VKApi.groups().isMember(VKParameters.from(VKApiConst.GROUP_ID, "92209938"));
+    public void checkPermissionsAndThenDownload() {
+        final VKRequest checkPermission = VKApi.groups().isMember(VKParameters.from(VKApiConst.GROUP_ID, AppConstants.GROUP_ID));
         checkPermission.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
@@ -140,7 +138,9 @@ public abstract class VKDownloadManager implements IShow {
                 JSONObject jsonResp = response.json;
                 try {
                     if (jsonResp.get("response").toString().equals("0"))
-                        show(context.getString(R.string.noInGroup), true);
+                        show(context.getString(R.string.sorry_text), true);
+                    else
+                        downloadAllTimesAndLinks();
                 } catch
                         (Exception e) {
                     show(e.getMessage(), true);
@@ -151,7 +151,7 @@ public abstract class VKDownloadManager implements IShow {
             @Override
             public void onError(VKError error) {
                 super.onError(error);
-                show(error.errorMessage, true);
+                show(error.toString(), true);
             }
         });
     }

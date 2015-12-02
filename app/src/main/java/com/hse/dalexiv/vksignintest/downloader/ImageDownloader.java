@@ -8,7 +8,7 @@ import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.hse.dalexiv.vksignintest.acitivity.MainActivity;
+import com.hse.dalexiv.vksignintest.app.AppConstants;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -63,7 +63,7 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Strin
             // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-            File myOnlyFile = new File(Environment.getExternalStorageDirectory(), MainActivity.IMAGE_NAME);
+            File myOnlyFile = new File(Environment.getExternalStorageDirectory(), AppConstants.IMAGE_NAME);
 
             // Output stream to write file
             OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory() + "/"
