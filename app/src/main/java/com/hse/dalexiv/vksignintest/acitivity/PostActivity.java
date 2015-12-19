@@ -1,5 +1,6 @@
 package com.hse.dalexiv.vksignintest.acitivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -121,7 +122,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                         }).show();
                     else {
                         Intent toGallery = new Intent(Intent.ACTION_VIEW);
-                        toGallery.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory() + "/" + uri),
+                        toGallery.setDataAndType(Uri.parse("file://" +  + "/" + uri),
                                 "image/*");
                         startActivity(toGallery);
                     }
