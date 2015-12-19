@@ -122,7 +122,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
                         }).show();
                     else {
                         Intent toGallery = new Intent(Intent.ACTION_VIEW);
-                        toGallery.setDataAndType(Uri.parse("file://" +  + "/" + uri),
+                        toGallery.setDataAndType(Uri.parse("file://" + mContext.get().getCacheDir() + "/" + uri),
                                 "image/*");
                         startActivity(toGallery);
                     }
@@ -277,7 +277,7 @@ public class PostActivity extends AppCompatActivity implements SwipeRefreshLayou
     private Intent createSharingIntent() {
         final Intent share = new Intent(Intent.ACTION_SEND);
         String type = "image/*";
-        String mediaPath = "file://" + Environment.getExternalStorageDirectory() + "/" + mPost.getUriToImage();
+        String mediaPath = "file://" +  this.getCacheDir() + "/" + mPost.getUriToImage();
         share.setType(type);
         share.putExtra(Intent.EXTRA_STREAM, Uri.parse(mediaPath))
                 .putExtra(Intent.EXTRA_TEXT, mPost.getText() + getString(R.string.tweetMes));

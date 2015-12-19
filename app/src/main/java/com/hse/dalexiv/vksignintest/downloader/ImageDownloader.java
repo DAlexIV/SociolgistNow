@@ -24,7 +24,7 @@ import java.net.URLConnection;
  */
 public abstract class ImageDownloader extends AsyncTask<String[], Integer, String> {
     private final String TAG = this.getClass().getSimpleName();
-    private WeakReference<Activity> mContext;
+    protected WeakReference<Activity> mContext;
     private final int MY_REQUEST_CODE = 777;
 
     public ImageDownloader(Activity activity) {
