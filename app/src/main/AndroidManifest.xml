@@ -14,7 +14,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".acitivity.SignInActivity"
-            android:theme="@style/VK.Transparent">
+            android:theme="@style/VK.Transparent"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

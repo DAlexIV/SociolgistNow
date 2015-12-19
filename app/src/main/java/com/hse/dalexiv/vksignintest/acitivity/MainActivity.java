@@ -152,18 +152,20 @@ public class MainActivity extends AppCompatActivity {
             if (exceptionText.equals(getString(R.string.sorry_text))
                     || exceptionText.equals(getString(R.string.bad_auth))) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(exceptionText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (exceptionText.equals(getString(R.string.bad_auth))) {
-                            finish();
-                            startActivity(new Intent(MainActivity.this, SignInActivity.class));
-                        } else if (exceptionText.equals(getString(R.string.sorry_text))) {
-                            finish();
-                            goToVKGroup();
-                        }
-                    }
-                }).create().show();
+                builder.setMessage(exceptionText).setPositiveButton((exceptionText.equals(getString(R.string.sorry_text))) ? R.string.join : R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (exceptionText.equals(getString(R.string.bad_auth))) {
+                                    finish();
+                                    startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                                } else if (exceptionText.equals(getString(R.string.sorry_text))) {
+                                    finish();
+                                    goToVKGroup();
+
+                                }
+                            }
+                        }).create().show();
                 Log.d(TAG, exceptionText);
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -186,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setRandomBack() {
+
         mBackground.setImageDrawable(ContextCompat.getDrawable(this,
                 backs.get(gen.nextInt(backs.size()))));
     }

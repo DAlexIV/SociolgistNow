@@ -26,7 +26,7 @@ import java.util.List;
  * Created by dalex on 11/3/2015.
  */
 public abstract class VKDownloadManager implements IShow {
-    private final String numberOfPosts = "100";
+    private final String numberOfPosts = "200";
     private final String TAG = VKDownloadManager.class.toString();
     private final IShow exceptionCallback;
     private final Context context;
