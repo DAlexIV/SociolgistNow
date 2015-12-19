@@ -1,10 +1,8 @@
 package com.hse.dalexiv.vksignintest.downloader;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import com.hse.dalexiv.vksignintest.acitivity.NotInGroupActivity;
 import com.hse.dalexiv.vksignintest.R;
 import com.hse.dalexiv.vksignintest.app.AppConstants;
 import com.hse.dalexiv.vksignintest.comms.IShow;
@@ -140,8 +138,9 @@ public abstract class VKDownloadManager implements IShow {
 
                 JSONObject jsonResp = response.json;
                 try {
-                    if (jsonResp.get("response").toString().equals("0"))
+                    if (jsonResp.get("response").toString().equals("0")) {
                         show(context.getString(R.string.sorry_text), true);
+                    }
                     else
                         downloadAllTimesAndLinks();
                 } catch
