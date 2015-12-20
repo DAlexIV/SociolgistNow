@@ -63,10 +63,10 @@ public abstract class ImageDownloader extends AsyncTask<String[], Integer, Strin
             // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-            File myOnlyFile = new File(Environment.getExternalStorageDirectory(), AppConstants.IMAGE_NAME);
+            File myOnlyFile = new File(mContext.get().getExternalCacheDir(), AppConstants.IMAGE_NAME);
 
             // Output stream to write file
-            OutputStream output = new FileOutputStream(Environment.getExternalStorageDirectory() + "/"
+            OutputStream output = new FileOutputStream(mContext.get().getExternalCacheDir() + "/"
                     + filename);
 
             byte data[] = new byte[1024];
